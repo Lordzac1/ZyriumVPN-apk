@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyriumVPN</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060d;--panel:rgba(26,22,44,.62);--line:rgba(139,92,246,.22);--tx:#ece9f8;--mu:#8e89a8;--v:#8b5cf6;--b:#3b82f6;--c:#22d3ee;--ok:#34d399;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme=light]{--bg:#f3f1fb;--panel:rgba(255,255,255,.8);--line:rgba(91,60,200,.2);--tx:#1a1530;--mu:#6a6485}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#07060d}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:15px/1.5 'Space Grotesk',system-ui,sans-serif;overflow:hidden}
+canvas#bg{position:fixed;inset:0;z-index:0;opacity:.55}
+.app{position:relative;z-index:1;display:flex;height:100%}
+nav{width:232px;padding:20px 14px;border-right:1px solid var(--line);background:var(--panel);backdrop-filter:blur(18px);display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.logo{display:flex;gap:10px;align-items:center;font-weight:700;font-size:19px;padding:4px 8px 18px}
+.logo small{display:block;font-weight:400;font-size:10.5px;color:var(--mu)}
+nav button{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;color:var(--mu);transition:.2s}
+nav button:hover{background:rgba(139,92,246,.12);color:var(--tx);transform:translateX(3px)}
+nav button.on{background:linear-gradient(90deg,rgba(139,92,246,.3),rgba(34,211,238,.1));color:var(--tx);box-shadow:inset 2px 0 var(--c)}
+nav button:focus-visible,.btn:focus-visible{outline:2px solid var(--c)}
+main{flex:1;overflow:auto;padding:28px;position:relative}
+.page{display:none;max-width:980px;margin:auto;animation:in .45s ease}
+.page.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(10px)}}
+h1{font-size:26px;margin-bottom:4px}.sub{color:var(--mu);margin-bottom:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;backdrop-filter:blur(16px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.stat b{display:block;font-size:22px}.stat span{color:var(--mu);font-size:13px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:center;margin-bottom:14px}
+.orb{position:relative;width:210px;height:210px;margin:auto}
+.orb svg{position:absolute;inset:0;animation:spin 9s linear infinite}
+.orb.on svg{animation-duration:2.2s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pw{position:absolute;inset:26px;border-radius:50%;border:0;cursor:pointer;color:#fff;font:700 15px 'Space Grotesk',sans-serif;background:radial-gradient(circle at 30% 25%,#6d4ae0,#1b1440);box-shadow:0 0 40px rgba(139,92,246,.5);transition:.3s}
+.pw:hover{transform:scale(1.05)}.pw:active{transform:scale(.96)}
+.orb.on .pw{background:radial-gradient(circle at 30% 25%,#22d3ee,#1d4ed8);box-shadow:0 0 60px rgba(34,211,238,.6)}
+.pulse{position:absolute;inset:0;border-radius:50%;border:2px solid var(--c);opacity:0}
+.orb.surge .pulse{animation:surge 1.2s ease-out}
+@keyframes surge{from{opacity:.9;transform:scale(.7)}to{opacity:0;transform:scale(2.2)}}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--c);margin-left:6px;vertical-align:middle}
+.tag.real{color:var(--ok)}
+.btn{cursor:pointer;border:0;border-radius:99px;padding:11px 20px;color:#fff;font:700 14px 'Space Grotesk',sans-serif;background:linear-gradient(90deg,var(--b),var(--v));transition:.2s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.gh{background:transparent;border:1px solid var(--line);color:var(--tx)}
+input[type=search]{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--tx);font:inherit}
+select{padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--tx);font:inherit}
+.row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.row:last-child{border:0}.row .gr{flex:1;min-width:150px}
+.row small{color:var(--mu)}
+.load{width:70px;height:6px;border-radius:9px;background:rgba(139,92,246,.2);overflow:hidden}.load i{display:block;height:100%;background:linear-gradient(90deg,var(--c),var(--v))}
+.sw{appearance:none;width:44px;height:25px;border-radius:99px;background:#3a3558;position:relative;cursor:pointer;transition:.25s;flex-shrink:0}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.25s}
+.sw:checked{background:var(--v)}.sw:checked::after{transform:translateX(19px)}
+.fav{background:none;border:0;cursor:pointer;font-size:19px;color:var(--mu)}.fav.on{color:#facc15}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px}th{color:var(--mu);font-weight:500}
+.tw{overflow-x:auto}
+.empty{color:var(--mu);text-align:center;padding:30px}
+dialog{border:1px solid var(--line);border-radius:24px;background:#0d0b18;color:#ece9f8;width:min(400px,92vw);padding:26px;margin:auto}
+dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
+.cmp{display:grid;grid-template-columns:1fr 60px 60px;gap:10px 4px;margin:18px 0;font-size:14px;text-align:center}.cmp span:nth-child(3n+1){text-align:left}.cmp .h{color:var(--c);font-weight:700;font-size:12px}
+details{padding:12px 0;border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:500}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1736;color:#fff;border:1px solid var(--line);padding:10px 18px;border-radius:99px;z-index:9;opacity:0;pointer-events:none;transition:.3s}.toast.on{opacity:1}
+@media(max-width:760px){
+body{overflow:auto}.app{flex-direction:column;height:auto;min-height:100%}
+nav{width:100%;flex-direction:row;overflow-x:auto;padding:10px;border-right:0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.logo{display:none}nav button{white-space:nowrap;padding:8px 12px}
+main{overflow:visible;padding:18px}.hero,.g2,.g3{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="app">
+<nav id="nav"></nav>
+<main>
+<section class="page on" id="p-dash">
+<h1 data-i="dash">Dashboard</h1><p class="sub">Your Privacy. Your Freedom.</p>
+<div class="card hero">
+ <div class="orb" id="orb"><span class="pulse"></span>
+  <svg viewBox="0 0 210 210"><defs><linearGradient id="g"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><circle cx="105" cy="105" r="98" fill="none" stroke="url(#g)" stroke-width="3" stroke-dasharray="90 40 20 40" stroke-linecap="round"/></svg>
+  <button class="pw" id="pw">CONNECT</button></div>
+ <div><h2 id="st">Desconectado</h2><p class="sub" id="st2" style="margin-bottom:10px">Modo demonstração: nenhum tráfego é protegido de verdade.</p><canvas id="globe" width="320" height="200" style="width:100%;max-width:320px"></canvas></div>
+</div>
+<div class="grid g3">
+ <div class="card stat"><b id="sSrv">—</b><span>Servidor <span class="tag">demo</span></span></div>
+ <div class="card stat"><b id="sTime">00:00:00</b><span>Tempo de conexão</span></div>
+ <div class="card stat"><b id="ip" style="font-size:18px">…</b><span>IP atual <span class="tag real">real</span> · protegido: indisponível sem túnel</span></div>
+ <div class="card stat"><b id="sPing">—</b><span>Ping (valor do catálogo demo)</span></div>
+ <div class="card stat"><b id="dsh">—</b><span>Último teste (↓ / ↑)</span></div>
+ <div class="card stat"><b id="sProt">Inativa</b><span>Proteção ativa <span class="tag">demo</span></span></div>
+</div>
+</section>
+
+<section class="page" id="p-srv">
+<h1>Servers</h1><p class="sub">Servidores de demonstração até existir infraestrutura WireGuard/OpenVPN real.</p>
+<div class="grid" style="grid-template-columns:1fr auto;margin-bottom:14px"><input type="search" id="q" placeholder="Pesquisar país ou cidade"><select id="ord"><option value="ping">Menor ping</option><option value="load">Menor carga</option><option value="name">Nome</option></select></div>
+<div class="card" id="list"></div>
+</section>
+
+<section class="page" id="p-sec">
+<h1>Security</h1><p class="sub">Cada recurso mostra se está implementado ou é demonstrativo.</p>
+<div class="card" id="secl"></div>
+</section>
+
+<section class="page" id="p-spd">
+<h1>Speed Test</h1><p class="sub">Medido de verdade na sua conexão atual, via Cloudflare. Mede a rede do aparelho, não um túnel VPN.</p>
+<div class="card" style="text-align:center">
+ <div class="grid g2" style="margin-bottom:16px"><div class="stat"><b id="dl">—</b><span>Download</span></div><div class="stat"><b id="ul">—</b><span>Upload</span></div><div class="stat"><b id="pg">—</b><span>Ping</span></div><div class="stat"><b id="jt">—</b><span>Jitter</span></div></div><div class="load" style="width:100%;margin-bottom:16px"><i id="bar" style="width:0;transition:width .3s"></i></div>
+ <button class="btn" id="stbtn">START TEST</button>
+</div>
+</section>
+
+<section class="page" id="p-his">
+<h1>Connection History</h1><p class="sub">Sessões demo registradas neste navegador.</p>
+<div class="card tw" id="hist"></div>
+</section>
+
+<section class="page" id="p-set">
+<h1>Settings</h1><p class="sub">Preferências salvas neste navegador quando disponível.</p>
+<div class="card" id="setl"></div>
+</section>
+
+<section class="page" id="p-acc">
+<h1>Account</h1><p class="sub">Login real depende do backend Node.js (ainda não conectado).</p>
+<div class="card"><h3>Plano Grátis</h3><p class="sub">Compare com o Premium.</p><button class="btn" id="up">Ver Premium</button></div>
+</section>
+
+<section class="page" id="p-sup">
+<h1>Support</h1><p class="sub">Perguntas frequentes.</p>
+<div class="card">
+<details><summary>A ZyriumVPN já protege minha conexão?</summary><p class="sub" style="margin:8px 0 0">Ainda não. Esta versão é a interface; a proteção real exige servidores WireGuard/OpenVPN conectados pela API.</p></details>
+<details><summary>Por que não vejo meu IP?</summary><p class="sub" style="margin:8px 0 0">O IP real só pode ser obtido pelo backend. Mostrar um número aqui seria informação falsa.</p></details>
+<details><summary>Como funcionam as chaves?</summary><p class="sub" style="margin:8px 0 0">Planejado: o backend gera o par de chaves WireGuard por dispositivo e o app nunca guarda a chave privada do servidor.</p></details>
+</div>
+</section>
+</main></div>
+
+<dialog id="dlg">
+<button class="fav" id="x" aria-label="Fechar" style="float:right">✕</button>
+<h2 style="margin-top:24px">Comece como um Pro</h2><p class="sub">Preço do plano a definir <span class="tag">modelo de tela</span></p>
+<div class="cmp"><span></span><span class="h">PREMIUM</span><span class="h" style="color:var(--mu)">GRÁTIS</span>
+<span>Segurança avançada</span><span>✓</span><span>✓</span>
+<span>Velocidade ultrarrápida</span><span>✓</span><span>✓</span>
+<span>Largura de banda ilimitada</span><span>✓</span><span>—</span>
+<span>Todos os servidores</span><span>✓</span><span>—</span>
+<span>Utilização ilimitada</span><span>✓</span><span>—</span>
+<span>Sem anúncios</span><span>✓</span><span>—</span></div>
+<button class="btn" style="width:100%" id="trial">INICIAR TESTE GRÁTIS</button>
+<p class="sub" style="font-size:12px;margin:10px 0 0">Pagamentos ainda não estão integrados.</p>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+const L={pt:{dash:'Dashboard',srv:'Servidores',sec:'Segurança',spd:'Teste de velocidade',his:'Histórico',set:'Configurações',acc:'Conta',sup:'Suporte'},en:{dash:'Dashboard',srv:'Servers',sec:'Security',spd:'Speed Test',his:'Connection History',set:'Settings',acc:'Account',sup:'Support'}};
+const ids={dash:'p-dash',srv:'p-srv',sec:'p-sec',spd:'p-spd',his:'p-his',set:'p-set',acc:'p-acc',sup:'p-sup'};
+const ic={dash:'◉',srv:'◍',sec:'⛨',spd:'⏱',his:'☰',set:'⚙',acc:'☺',sup:'?'};
+const S=[['Brasil','🇧🇷','São Paulo',18,32],['Estados Unidos','🇺🇸','Nova York',120,55],['Alemanha','🇩🇪','Frankfurt',190,41],['Reino Unido','🇬🇧','Londres',185,48],['Japão','🇯🇵','Tóquio',270,36],['França','🇫🇷','Paris',195,60],['Canadá','🇨🇦','Toronto',140,29],['Holanda','🇳🇱','Amsterdã',188,44],['Singapura','🇸🇬','Singapura',320,38]].map(a=>({n:a[0],f:a[1],c:a[2],ping:a[3],load:a[4]}));
+let st={lang:'pt',fav:[],sel:0,on:false,t0:0,hist:[]};
+try{Object.assign(st,JSON.parse(localStorage.getItem('zv')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('zv',JSON.stringify(st))}catch(e){}};
+const $=s=>document.querySelector(s);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
+function nav(){$('#nav').innerHTML='<div class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><path d="M17 2 30 8v9c0 8-6 13-13 15C10 30 4 25 4 17V8z" fill="none" stroke="url(#lg)" stroke-width="2.5"/><path d="M11 12h12l-12 10h12" fill="none" stroke="url(#lg)" stroke-width="2.5" stroke-linejoin="round"/></svg><div>ZyriumVPN<small>Your Privacy. Your Freedom.</small></div></div>'+Object.keys(ids).map(k=>`<button data-k="${k}">${ic[k]} ${L[st.lang][k]}</button>`).join('');
+ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.k))}
+function go(k){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===ids[k]));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('main').scrollTop=0;if(k==='his')hist()}
+function srvList(){const q=$('#q').value.toLowerCase(),o=$('#ord').value;
+ let a=S.map((s,i)=>({...s,i})).filter(s=>(s.n+s.c).toLowerCase().includes(q));
+ a.sort((x,y)=>o==='name'?x.n.localeCompare(y.n):x[o]-y[o]);
+ const best=Math.min(...S.map(s=>s.ping));
+ $('#list').innerHTML=a.length?a.map(s=>`<div class="row"><span style="font-size:26px">${s.f}</span><div class="gr"><b>${s.n}</b>${s.ping===best?'<span class="tag">recomendado</span>':''}<br><small>${s.c}</small></div><small>${s.ping} ms</small><div class="load"><i style="width:${s.load}%"></i></div><button class="fav ${st.fav.includes(s.i)?'on':''}" data-f="${s.i}" aria-label="Favoritar">★</button><button class="btn gh" data-u="${s.i}">${st.sel===s.i?'Selecionado':'Usar'}</button></div>`).join(''):'<div class="empty">Nenhum país encontrado. Tente outro nome.</div>';
+ document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const i=+b.dataset.f;st.fav=st.fav.includes(i)?st.fav.filter(x=>x!==i):[...st.fav,i];save();srvList()});
+ document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{if(st.on){toast('Desconecte antes de trocar de servidor');return}st.sel=+b.dataset.u;save();srvList();info();toast('Servidor demo: '+S[st.sel].n)})}
+function info(){const s=S[st.sel];$('#sSrv').textContent=s.f+' '+s.c;$('#sPing').textContent=st.on?s.ping+' ms':'—'}
+const SEC=[['Kill Switch',false,'demo'],['DNS Leak Protection',true,'demo'],['Auto Connect',false,'real'],['Proteção contra vazamento de IPv6',true,'demo']];
+function sec(){$('#secl').innerHTML=SEC.map((r,i)=>`<div class="row"><div class="gr"><b>${r[0]}</b><span class="tag ${r[2]==='real'?'real':''}">${r[2]==='real'?'implementado (preferência salva)':'demonstrativo'}</span></div><input class="sw" type="checkbox" data-s="${i}" ${(st['s'+i]??r[1])?'checked':''}></div>`).join('')+`<div class="row"><div class="gr"><b>Protocolo</b><br><small>Seleção salva; só terá efeito com servidores reais.</small></div><select id="proto"><option>WireGuard</option><option>OpenVPN</option></select></div><div class="row"><div class="gr"><b>Status de criptografia</b></div><span class="tag">indisponível sem conexão real</span></div>`;
+ document.querySelectorAll('[data-s]').forEach(c=>c.onchange=()=>{st['s'+c.dataset.s]=c.checked;save()});$('#proto').value=st.proto||'WireGuard';$('#proto').onchange=e=>{st.proto=e.target.value;save()}}
+function setts(){$('#setl').innerHTML=`<div class="row"><div class="gr"><b>Tema claro</b></div><input class="sw" type="checkbox" id="th" ${st.light?'checked':''}></div><div class="row"><div class="gr"><b>Idioma</b></div><select id="lg"><option value="pt">Português</option><option value="en">English</option></select></div><div class="row"><div class="gr"><b>Notificações no app</b></div><input class="sw" type="checkbox" id="nt" ${st.nt?'checked':''}></div><div class="row"><div class="gr"><b>Inicialização automática</b><span class="tag">requer app instalado</span></div><input class="sw" type="checkbox" disabled></div>`;
+ $('#lg').value=st.lang;$('#lg').onchange=e=>{st.lang=e.target.value;save();nav();go('set')};
+ $('#th').onchange=e=>{st.light=e.target.checked;document.documentElement.dataset.theme=st.light?'light':'dark';save()};
+ $('#nt').onchange=e=>{st.nt=e.target.checked;save()}}
+function hist(){$('#hist').innerHTML=st.hist.length?'<table><tr><th>País</th><th>Servidor</th><th>Data</th><th>Duração</th><th>Status</th></tr>'+st.hist.map(h=>`<tr><td>${h.f} ${h.n}</td><td>${h.c} (demo)</td><td>${h.d}</td><td>${h.dur}</td><td>Sessão demo</td></tr>`).reverse().join('')+'</table>':'<div class="empty">Nenhuma sessão ainda. Vá ao Dashboard e toque em CONNECT.</div>'}
+const fmt=s=>[s/3600,s%3600/60,s%60].map(x=>String(Math.floor(x)).padStart(2,'0')).join(':');
+let tm;
+$('#pw').onclick=()=>{const o=$('#orb'),s=S[st.sel];
+ if(!st.on){$('#pw').textContent='...';setTimeout(()=>{st.on=true;st.t0=Date.now();o.classList.add('on','surge');setTimeout(()=>o.classList.remove('surge'),1300);$('#pw').textContent='DISCONNECT';$('#st').textContent='Conectado (demo)';$('#st2').textContent='Simulação visual para '+s.n+'. Seu tráfego NÃO está protegido.';$('#sProt').textContent='Simulada';info();tm=setInterval(()=>$('#sTime').textContent=fmt((Date.now()-st.t0)/1000),1000);if(st.nt)toast('Conexão demo iniciada')},900)}
+ else{clearInterval(tm);const d=Math.round((Date.now()-st.t0)/1000);st.hist.push({n:s.n,f:s.f,c:s.c,d:new Date().toLocaleString(st.lang==='pt'?'pt-BR':'en-US'),dur:fmt(d)});st.hist=st.hist.slice(-50);st.on=false;save();o.classList.remove('on');$('#pw').textContent='CONNECT';$('#st').textContent='Desconectado';$('#st2').textContent='Modo demonstração: nenhum tráfego é protegido de verdade.';$('#sProt').textContent='Inativa';$('#sTime').textContent='00:00:00';info()}};
+
+fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(j=>$('#ip').textContent=j.ip).catch(()=>$('#ip').textContent='Sem conexão');
+if(st.last)$('#dsh').textContent=st.last;
+$('#stbtn').onclick=async()=>{const b=$('#stbtn'),set=(i,v)=>$('#'+i).textContent=v,bar=w=>$('#bar').style.width=w+'%';
+ b.disabled=true;['dl','ul','pg','jt'].forEach(i=>set(i,'…'));bar(5);
+ try{const U='https://speed.cloudflare.com/',rt=[];
+  for(let i=0;i<8;i++){const t=performance.now();await fetch(U+'__down?bytes=0&r='+Math.random(),{cache:'no-store'});rt.push(performance.now()-t)}
+  set('pg',Math.round(Math.min(...rt))+' ms');
+  set('jt',(rt.slice(1).reduce((a,x,i)=>a+Math.abs(x-rt[i]),0)/(rt.length-1)).toFixed(1)+' ms');bar(25);
+  let t=performance.now(),n=0,dl=0;const rd=(await fetch(U+'__down?bytes=30000000&r='+Math.random(),{cache:'no-store'})).body.getReader();
+  for(;;){const x=await rd.read();if(x.done)break;n+=x.value.length;dl=n*8/1e6/((performance.now()-t)/1000);set('dl',dl.toFixed(1)+' Mbps');bar(25+n/30e6*45)}
+  bar(75);t=performance.now();await fetch(U+'__up',{method:'POST',body:new Blob([new Uint8Array(10e6)])});
+  const ul=80/((performance.now()-t)/1000);set('ul',ul.toFixed(1)+' Mbps');bar(100);
+  st.last=dl.toFixed(1)+' / '+ul.toFixed(1)+' Mbps';save();$('#dsh').textContent=st.last;toast('Teste concluído')
+ }catch(e){['dl','ul','pg','jt'].forEach(i=>set(i,'—'));bar(0);toast('Falha no teste: verifique sua internet e tente de novo')}
+ b.disabled=false};
+const dlg=$('#dlg');$('#up').onclick=()=>dlg.showModal();$('#x').onclick=()=>dlg.close();$('#trial').onclick=()=>{dlg.close();toast('Pagamentos ainda não integrados')};
+$('#q').oninput=srvList;$('#ord').onchange=srvList;
+/* globo + partículas */
+const bg=$('#bg'),bx=bg.getContext('2d'),P=[];
+function rs(){bg.width=innerWidth;bg.height=innerHeight}rs();addEventListener('resize',rs);
+for(let i=0;i<50;i++)P.push([Math.random(),Math.random(),Math.random()*.0004+.0001]);
+const gl=$('#globe'),gx=gl.getContext('2d');let rot=0;
+const pts=[];for(let i=0;i<260;i++){const y=1-2*(i+.5)/260,r=Math.sqrt(1-y*y),a=i*2.4;pts.push([r*Math.cos(a),y,r*Math.sin(a)])}
+const city=S.map((_,i)=>[Math.cos(i*.7+1)*.9,Math.sin(i*1.3)*.6,Math.sin(i*.7+1)*.9]);
+function draw(){bx.clearRect(0,0,bg.width,bg.height);bx.fillStyle='rgba(139,92,246,.7)';P.forEach(p=>{p[1]=(p[1]-p[2]+1)%1;bx.beginPath();bx.arc(p[0]*bg.width,p[1]*bg.height,1.4,0,7);bx.fill()});
+ gx.clearRect(0,0,320,200);rot+=.006;const R=88,cx=160,cy=100,pr=(p)=>{const c=Math.cos(rot),s=Math.sin(rot),x=p[0]*c+p[2]*s,z=-p[0]*s+p[2]*c;return[cx+x*R,cy+p[1]*R,z]};
+ pts.forEach(p=>{const q=pr(p);gx.fillStyle=q[2]>0?'rgba(34,211,238,.85)':'rgba(139,92,246,.25)';gx.fillRect(q[0],q[1],1.8,1.8)});
+ const h=pr(city[st.sel]);city.forEach((c,i)=>{if(i===st.sel)return;const q=pr(c);if(st.on&&q[2]>0&&h[2]>0){gx.strokeStyle='rgba(139,92,246,.6)';gx.beginPath();gx.moveTo(h[0],h[1]);gx.quadraticCurveTo((h[0]+q[0])/2,Math.min(h[1],q[1])-30,q[0],q[1]);gx.stroke()}});
+ if(h[2]>0){gx.fillStyle='#fff';gx.beginPath();gx.arc(h[0],h[1],4,0,7);gx.fill()}
+ requestAnimationFrame(draw)}
+document.documentElement.dataset.theme=st.light?'light':'dark';
+st.hist=Array.isArray(st.hist)?st.hist:[];
+nav();srvList();sec();setts();info();go('dash');draw();
+</script>
+</body>
+</html>
